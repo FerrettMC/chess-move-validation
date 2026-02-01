@@ -6,5 +6,5 @@ Content-Type: application/json
   "to": "B1",
   "piece": "pawn",
   "color": "black",
-  "board": [{"position": "B6", "piece": "pawn", "color": "black"}, {"position": "B1", "piece": "pawn", "color": "white"}]
+  "board": [{"position": "B6", "piece": "pawn", "color": "black"}, {"position": "B1", "piece": "pawn", "color": "black"}]
 }
