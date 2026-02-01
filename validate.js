@@ -168,16 +168,24 @@ app.post("/validateMove", (req, res) => {
           fromLetterIndex - 1 === toLetterIndex
         ) {
           if (board.some((p) => p.position === to)) {
-            const piece = board.find((p) => p.position === to);
+            const otherPiece = board.find((p) => p.position === to);
             let promotion = false;
-            if (Number(to[1]) === 1) {
-              promotion = true;
+            if (otherPiece.color !== color) {
+              if (Number(to[1]) === 1) {
+                promotion = true;
+              }
+              return res.json({
+                promotion: promotion,
+                newPosition: to,
+                message: `Took ${otherPiece.piece} on ${to}`,
+              });
+            } else {
+              return res.json({
+                error: true,
+                newPosition: from,
+                message: `Cannot take own ${otherPiece.piece}`,
+              });
             }
-            return res.json({
-              promotion: promotion,
-              newPosition: to,
-              message: `Took ${piece.piece} on ${to}`,
-            });
           }
         }
         // Cannot move to a position with a piece there already
@@ -205,6 +213,8 @@ app.post("/validateMove", (req, res) => {
           message: `Cannot move to this position`,
         });
       }
+    case "rook":
+      return;
   }
 });
 
