@@ -1,0 +1,10 @@
+POST http://localhost:5000/validateMove
+Content-Type: application/json
+
+{
+  "from": "B2",
+  "to": "C3",
+  "piece": "pawn",
+  "color": "white",
+  "board": [{"position": "C3", "piece": "pawn", "color": "black"}, {"position": "E3", "piece": "pawn", "color": "black"}]
+}
