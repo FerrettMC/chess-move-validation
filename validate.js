@@ -38,19 +38,19 @@ app.post("/validateMove", (req, res) => {
   const { from, to, piece, color, board } = req.body;
 
   switch (piece) {
-    case "pawn":
+    case "pawn": {
       const toLetterIndex = files.findIndex((p) => p === to[0]);
       const fromLetterIndex = files.findIndex((p) => p === from[0]);
+      // Not on board
+      if (!fullBoard.includes(to)) {
+        return res.json({
+          error: true,
+          newPosition: from,
+          message: `Cannot move to this position`,
+        });
+      }
       // White pawn
       if (color === "white") {
-        // Not on board
-        if (!fullBoard.includes(to)) {
-          return res.json({
-            error: true,
-            newPosition: from,
-            message: `Cannot move to this position`,
-          });
-        }
         let firstMove = false;
         // First pawn move 2 squares
         if (to[1] === "4" && from[1] === "2" && from[0] === to[0]) {
@@ -125,14 +125,6 @@ app.post("/validateMove", (req, res) => {
       }
       // Black pawn
       else if (color === "black") {
-        // Not on board
-        if (!fullBoard.includes(to)) {
-          return res.json({
-            error: true,
-            newPosition: from,
-            message: `Cannot move to this position`,
-          });
-        }
         let firstMove = false;
         // First pawn move 2 squares
         if (to[1] === "5" && from[1] === "7" && from[0] === to[0]) {
@@ -213,8 +205,71 @@ app.post("/validateMove", (req, res) => {
           message: `Cannot move to this position`,
         });
       }
-    case "rook":
-      return;
+    }
+    case "rook": {
+      const toLetterIndex = files.findIndex((p) => p === to[0]);
+      const fromLetterIndex = files.findIndex((p) => p === from[0]);
+      // Not on board
+      if (!fullBoard.includes(to)) {
+        return res.json({
+          error: true,
+          newPosition: from,
+          message: `Cannot move to this position`,
+        });
+      }
+      if (to[1] !== from[1] && to[0] !== from[0]) {
+        return res.json({
+          error: true,
+          newPosition: from,
+          message: `Cannot move to this position`,
+        });
+      }
+      const direction = to[1] === from[1] ? "horizontal" : "vertical";
+      switch (direction) {
+        case "horizontal":
+          for (let i = 0; i < Math.abs(toLetterIndex - fromLetterIndex); i++) {
+            let blockingPiece = false;
+            if (toLetterIndex > fromLetterIndex) {
+              blockingPiece = board.find(
+                (p) => p.position === `${files[fromLetterIndex + i]}${to[1]}`,
+              );
+            } else {
+              blockingPiece = board.find(
+                (p) => p.position === `${files[fromLetterIndex - i]}${to[1]}`,
+              );
+            }
+            if (blockingPiece) {
+              return res.json({
+                error: true,
+                newPosition: from,
+                message: `Piece blocking you on ${blockingPiece.position}`,
+              });
+            }
+          }
+        case "vertical":
+          for (let i = 0; i < Math.abs(Number(to[1]) - Number(from[1])); i++) {
+            console.log(`${from[0]}${Number(from[1]) + i}`);
+            let blockingPiece = false;
+            if (Number(to[1]) > Number(from[1])) {
+              blockingPiece = board.find(
+                (p) => p.position === `${from[0]}${Number(from[1]) + i}`,
+              );
+            } else {
+              blockingPiece = board.find(
+                (p) => p.position === `${from[0]}${Number(from[1]) - i}`,
+              );
+            }
+            if (blockingPiece) {
+              return res.json({
+                error: true,
+                newPosition: from,
+                message: `Piece blocking you on ${blockingPiece.position}`,
+              });
+            }
+          }
+      }
+      return res.json({ newPosition: to });
+    }
   }
 });
 
