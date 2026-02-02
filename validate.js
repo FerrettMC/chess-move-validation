@@ -227,7 +227,7 @@ app.post("/validateMove", (req, res) => {
       const direction = to[1] === from[1] ? "horizontal" : "vertical";
       switch (direction) {
         case "horizontal":
-          for (let i = 0; i < Math.abs(toLetterIndex - fromLetterIndex); i++) {
+          for (let i = 1; i < Math.abs(toLetterIndex - fromLetterIndex); i++) {
             let blockingPiece = false;
             if (toLetterIndex > fromLetterIndex) {
               blockingPiece = board.find(
@@ -247,8 +247,7 @@ app.post("/validateMove", (req, res) => {
             }
           }
         case "vertical":
-          for (let i = 0; i < Math.abs(Number(to[1]) - Number(from[1])); i++) {
-            console.log(`${from[0]}${Number(from[1]) + i}`);
+          for (let i = 1; i < Math.abs(Number(to[1]) - Number(from[1])); i++) {
             let blockingPiece = false;
             if (Number(to[1]) > Number(from[1])) {
               blockingPiece = board.find(
@@ -267,6 +266,23 @@ app.post("/validateMove", (req, res) => {
               });
             }
           }
+      }
+      if (board.some((p) => p.position === to)) {
+        const otherPiece = board.find((p) => p.position === to);
+        if (otherPiece) {
+          if (otherPiece.color !== color) {
+            return res.json({
+              newPosition: to,
+              message: `Took ${otherPiece.piece} on ${to}`,
+            });
+          } else {
+            return res.json({
+              error: true,
+              newPosition: from,
+              message: `Cannot take own ${otherPiece.piece}`,
+            });
+          }
+        }
       }
       return res.json({ newPosition: to });
     }

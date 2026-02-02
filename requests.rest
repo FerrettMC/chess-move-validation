@@ -2,8 +2,8 @@ POST http://localhost:5000/validateMove
 Content-Type: application/json
 
 {
-  "from": "E4",
-  "to": "E2",
+  "from": "D4",
+  "to": "E4",
   "piece": "rook",
   "color": "white",
   "board": [{"position": "E3", "piece": "pawn", "color": "black"}, {"position": "C2", "piece": "pawn", "color": "black"}]
