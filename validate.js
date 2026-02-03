@@ -357,6 +357,40 @@ app.post("/validateMove", (req, res) => {
       return res.json({ newPosition: to });
     }
     case "knight": {
+      const toLetterIndex = files.findIndex((p) => p === to[0]);
+      const fromLetterIndex = files.findIndex((p) => p === from[0]);
+      if (Math.abs(toLetterIndex - fromLetterIndex) + Math.abs((Number(to[1]) - Number(from[1]))) !== 3) {
+        return res.json({
+          error: true,
+          newPosition: from,
+          message: `Cannot move like this`,
+        });
+      } 
+      if (board.some((p) => p.position === to)) {
+        const otherPiece = board.find((p) => p.position === to);
+        if (otherPiece) {
+          if (otherPiece.color !== color) {
+            return res.json({
+              newPosition: to,
+              message: `Took ${otherPiece.piece} on ${to}`,
+            });
+          } else {
+            return res.json({
+              error: true,
+              newPosition: from,
+              message: `Cannot take own ${otherPiece.piece}`,
+            });
+          }
+        }
+      }
+      return res.json({ newPosition: to });
+    }
+    default: {
+      return res.json({
+        error: true,
+        newPosition: from,
+        message: `Piece not found`,
+      });
     }
   }
 });
