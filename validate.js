@@ -34,21 +34,33 @@ for (let f = 0; f < 8; f++) {
   }
 }
 
+const fullBoardArray = [];
+
+for (let f = 8; f >= 1; f--) {
+  let innerArray = [];
+  for (let r = 0; r < 8; r++) {
+    innerArray.push(files[r] + f);
+  }
+  fullBoardArray.push(innerArray);
+}
+
 app.post("/validateMove", (req, res) => {
   const { from, to, piece, color, board } = req.body;
+
+  // Not on board
+  if (!fullBoard.includes(to)) {
+    return res.json({
+      error: true,
+      newPosition: from,
+      message: `Cannot move to this position`,
+    });
+  }
 
   switch (piece) {
     case "pawn": {
       const toLetterIndex = files.findIndex((p) => p === to[0]);
       const fromLetterIndex = files.findIndex((p) => p === from[0]);
-      // Not on board
-      if (!fullBoard.includes(to)) {
-        return res.json({
-          error: true,
-          newPosition: from,
-          message: `Cannot move to this position`,
-        });
-      }
+
       // White pawn
       if (color === "white") {
         let firstMove = false;
@@ -210,13 +222,7 @@ app.post("/validateMove", (req, res) => {
       const toLetterIndex = files.findIndex((p) => p === to[0]);
       const fromLetterIndex = files.findIndex((p) => p === from[0]);
       // Not on board
-      if (!fullBoard.includes(to)) {
-        return res.json({
-          error: true,
-          newPosition: from,
-          message: `Cannot move to this position`,
-        });
-      }
+
       if (to[1] !== from[1] && to[0] !== from[0]) {
         return res.json({
           error: true,
@@ -285,6 +291,72 @@ app.post("/validateMove", (req, res) => {
         }
       }
       return res.json({ newPosition: to });
+    }
+    case "bishop": {
+      const toLetterIndex = files.findIndex((p) => p === to[0]);
+      const fromLetterIndex = files.findIndex((p) => p === from[0]);
+      const right = fromLetterIndex < toLetterIndex ? true : false;
+      const up = Number(from[1]) < Number(to[1]) ? true : false;
+      if (
+        (blackSquares.includes(from) && !blackSquares.includes(to)) ||
+        (whiteSquares.includes(from) && !whiteSquares.includes(to))
+      ) {
+        return res.json({
+          error: true,
+          newPosition: from,
+          message: `Cannot move like this`,
+        });
+      }
+      if (
+        Math.abs(fromLetterIndex - toLetterIndex) !== Math.abs(from[1] - to[1])
+      ) {
+        return res.json({
+          error: true,
+          newPosition: from,
+          message: `Cannot move like this`,
+        });
+      }
+      const dx = right ? 1 : -1;
+      const dy = up ? 1 : -1;
+
+      for (let i = 1; i < Math.abs(fromLetterIndex - toLetterIndex); i++) {
+        const numHorizontal = fromLetterIndex + dx * i;
+        const numVertical = Number(from[1]) + dy * i;
+
+        if (
+          board.some(
+            (p) =>
+              p.position[0] === files[numHorizontal] &&
+              Number(p.position[1]) === numVertical,
+          )
+        ) {
+          return res.json({
+            error: true,
+            newPosition: from,
+            message: `Cannot move here, piece in the way`,
+          });
+        }
+      }
+      if (board.some((p) => p.position === to)) {
+        const otherPiece = board.find((p) => p.position === to);
+        if (otherPiece) {
+          if (otherPiece.color !== color) {
+            return res.json({
+              newPosition: to,
+              message: `Took ${otherPiece.piece} on ${to}`,
+            });
+          } else {
+            return res.json({
+              error: true,
+              newPosition: from,
+              message: `Cannot take own ${otherPiece.piece}`,
+            });
+          }
+        }
+      }
+      return res.json({ newPosition: to });
+    }
+    case "knight": {
     }
   }
 });
