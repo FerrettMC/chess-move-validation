@@ -45,7 +45,7 @@ for (let f = 8; f >= 1; f--) {
 }
 
 app.post("/validateMove", (req, res) => {
-  const { from, to, piece, color, board } = req.body;
+  const { from, to, piece, color, hasMoved, board } = req.body;
 
   // Not on board
   if (!fullBoard.includes(to)) {
@@ -359,13 +359,123 @@ app.post("/validateMove", (req, res) => {
     case "knight": {
       const toLetterIndex = files.findIndex((p) => p === to[0]);
       const fromLetterIndex = files.findIndex((p) => p === from[0]);
-      if (Math.abs(toLetterIndex - fromLetterIndex) + Math.abs((Number(to[1]) - Number(from[1]))) !== 3) {
+      if (
+        Math.abs(toLetterIndex - fromLetterIndex) +
+          Math.abs(Number(to[1]) - Number(from[1])) !==
+        3
+      ) {
         return res.json({
           error: true,
           newPosition: from,
           message: `Cannot move like this`,
         });
-      } 
+      }
+      if (board.some((p) => p.position === to)) {
+        const otherPiece = board.find((p) => p.position === to);
+        if (otherPiece) {
+          if (otherPiece.color !== color) {
+            return res.json({
+              newPosition: to,
+              message: `Took ${otherPiece.piece} on ${to}`,
+            });
+          } else {
+            return res.json({
+              error: true,
+              newPosition: from,
+              message: `Cannot take own ${otherPiece.piece}`,
+            });
+          }
+        }
+      }
+      return res.json({ newPosition: to });
+    }
+    case "king": {
+      const toLetterIndex = files.findIndex((p) => p === to[0]);
+      const fromLetterIndex = files.findIndex((p) => p === from[0]);
+      if (
+        Math.abs(fromLetterIndex - toLetterIndex) === 2 &&
+        from[1] === to[1]
+      ) {
+        if (hasMoved || from[0] !== "E") {
+          return res.json({
+            error: true,
+            newPosition: from,
+            message: `Cannot move like this`,
+          });
+        }
+        const direction =
+          fromLetterIndex - toLetterIndex === 2 ? "left" : "right";
+        switch (direction) {
+          case "left": {
+            const rook = board.find((p) => p.position === `A${from[1]}`);
+            if (!rook || rook.hasMoved || rook.color !== color) {
+              return res.json({
+                error: true,
+                newPosition: from,
+                message: `No rook to castle with`,
+              });
+            }
+
+            for (let i = 1; i <= 3; i++) {
+              if (board.some((p) => p.position === `${files[i]}${from[1]}`)) {
+                return res.json({
+                  error: true,
+                  newPosition: from,
+                  message: `Piece in the way`,
+                });
+              }
+            }
+            return res.json({ newPosition: to });
+          }
+          case "right": {
+            const rook = board.find((p) => p.position === `H${from[1]}`);
+            if (!rook || rook.hasMoved || rook.color !== color) {
+              return res.json({
+                error: true,
+                newPosition: from,
+                message: `No rook to castle with`,
+              });
+            }
+            for (let i = 1; i <= 2; i++) {
+              if (
+                board.some((p) => p.position === `${files[7 - i]}${from[1]}`)
+              ) {
+                return res.json({
+                  error: true,
+                  newPosition: from,
+                  message: `Piece in the way`,
+                });
+              }
+            }
+            return res.json({ newPosition: to });
+          }
+
+          default:
+            return res.json({
+              error: true,
+              newPosition: from,
+              message: `Cannot move like this`,
+            });
+        }
+      }
+      if (
+        !(
+          from[0] === to[0] && Math.abs(Number(to[1]) - Number(from[1])) === 1
+        ) &&
+        !(
+          from[1] === to[1] && Math.abs(toLetterIndex - fromLetterIndex) === 1
+        ) &&
+        !(
+          Math.abs(toLetterIndex - fromLetterIndex) === 1 &&
+          Math.abs(Number(to[1]) - Number(from[1])) === 1
+        )
+      ) {
+        return res.json({
+          error: true,
+          newPosition: from,
+          message: `Cannot move like this`,
+        });
+      }
       if (board.some((p) => p.position === to)) {
         const otherPiece = board.find((p) => p.position === to);
         if (otherPiece) {
