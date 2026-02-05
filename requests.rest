@@ -8,8 +8,9 @@ Content-Type: application/json
   "color": "white",
   "hasMoved": false,
   "board": [
-  {"position": "H1", "piece": "rook", "color": "white", "hasMoved": false}, 
-  {"position": "H3", "piece": "pawn", "color": "black", "hasMoved": false}, 
-  {"position": "C2", "piece": "pawn", "color": "black", "hasMoved": false}
+  {"position": "H1", "piece": "rook", "color": "white", "hasMoved": false, "moveNum": 0}, 
+  {"position": "H3", "piece": "pawn", "color": "black", "hasMoved": false, "moveNum": 0}, 
+  {"position": "C2", "piece": "pawn", "color": "black", "hasMoved": false, "moveNum": 0}
   ]
 }
+
