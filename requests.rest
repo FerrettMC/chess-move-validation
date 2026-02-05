@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "from": "E1",
-  "to": "G1",
+  "to": "H1",
   "piece": "king",
   "color": "white",
   "hasMoved": false,
