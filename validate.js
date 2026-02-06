@@ -1,11 +1,20 @@
 import express from "express";
+import { writeFile, readFile } from "fs/promises";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
 const app = express();
 app.use(express.json());
 
-const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
-const blackSquares = [];
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
+const BOARD_FILE = join(__dirname, "board.json");
+
+const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
+
+const blackSquares = [];
 for (let f = 0; f < 8; f++) {
   for (let r = 1; r <= 8; r++) {
     const isBlack = (f + r) % 2 === 1;
@@ -16,7 +25,6 @@ for (let f = 0; f < 8; f++) {
 }
 
 const whiteSquares = [];
-
 for (let f = 0; f < 8; f++) {
   for (let r = 1; r <= 8; r++) {
     const isWhite = (f + r) % 2 === 0;
@@ -27,7 +35,6 @@ for (let f = 0; f < 8; f++) {
 }
 
 const fullBoard = [];
-
 for (let f = 0; f < 8; f++) {
   for (let r = 1; r <= 8; r++) {
     fullBoard.push(files[f] + r);
@@ -35,7 +42,6 @@ for (let f = 0; f < 8; f++) {
 }
 
 const fullBoardArray = [];
-
 for (let f = 8; f >= 1; f--) {
   let innerArray = [];
   for (let r = 0; r < 8; r++) {
@@ -43,6 +49,107 @@ for (let f = 8; f >= 1; f--) {
   }
   fullBoardArray.push(innerArray);
 }
+
+// Generate initial chess board with all pieces
+const generateInitialBoard = () => {
+  const board = [];
+
+  // Define piece order for back ranks
+  const backRankPieces = [
+    "rook",
+    "knight",
+    "bishop",
+    "queen",
+    "king",
+    "bishop",
+    "knight",
+    "rook",
+  ];
+
+  // White pieces (ranks 1 and 2)
+  // Back rank (rank 1)
+  files.forEach((file, index) => {
+    board.push({
+      position: `${file}1`,
+      piece: backRankPieces[index],
+      color: "white",
+      hasMoved: false,
+      moveNum: 0,
+    });
+  });
+
+  // Pawns (rank 2)
+  files.forEach((file) => {
+    board.push({
+      position: `${file}2`,
+      piece: "pawn",
+      color: "white",
+      hasMoved: false,
+      moveNum: 0,
+    });
+  });
+
+  // Black pieces (ranks 7 and 8)
+  // Pawns (rank 7)
+  files.forEach((file) => {
+    board.push({
+      position: `${file}7`,
+      piece: "pawn",
+      color: "black",
+      hasMoved: false,
+      moveNum: 0,
+    });
+  });
+
+  // Back rank (rank 8)
+  files.forEach((file, index) => {
+    board.push({
+      position: `${file}8`,
+      piece: backRankPieces[index],
+      color: "black",
+      hasMoved: false,
+      moveNum: 0,
+    });
+  });
+
+  return board;
+};
+
+app.post("/initializeBoard", async (req, res) => {
+  try {
+    const initialBoard = generateInitialBoard();
+
+    // Write to board.json
+    await writeFile(
+      BOARD_FILE,
+      JSON.stringify({ board: initialBoard }, null, 2),
+      "utf8",
+    );
+
+    res.status(200).json({
+      message: "Chess board initialized successfully",
+      board: initialBoard,
+    });
+  } catch (error) {
+    console.error("Error initializing board:", error);
+    res.status(500).json({
+      error: "Failed to initialize chess board",
+      details: error.message,
+    });
+  }
+});
+
+app.get("/board", async (req, res) => {
+  try {
+    const data = await readFile(BOARD_FILE, "utf8");
+    res.status(200).json(JSON.parse(data));
+  } catch (error) {
+    res.status(404).json({
+      error: "Board not found",
+      details: error.message,
+    });
+  }
+});
 
 app.post("/validateMove", (req, res) => {
   const { from, to, piece, color, hasMoved, board } = req.body;
