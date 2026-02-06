@@ -98,16 +98,45 @@ app.post("/validateMove", (req, res) => {
           fromLetterIndex - 1 === toLetterIndex
         ) {
           if (board.some((p) => p.position === to)) {
-            const piece = board.find((p) => p.position === to);
+            const otherPiece = board.find((p) => p.position === to);
             let promotion = false;
-            if (Number(to[1]) === 8) {
-              promotion = true;
+            if (otherPiece.color !== color) {
+              if (Number(to[1]) === 8) {
+                promotion = true;
+              }
+              return res.json({
+                promotion: promotion,
+                newPosition: to,
+                message: `Took ${otherPiece.piece} on ${to}`,
+              });
+            } else {
+              return res.json({
+                error: true,
+                newPosition: from,
+                message: `Cannot take own ${otherPiece.piece}`,
+              });
             }
-            return res.json({
-              promotion: promotion,
-              newPosition: to,
-              message: `Took ${piece.piece} on ${to}`,
-            });
+          }
+          if (
+            board.some(
+              (p) =>
+                p.position[0] === files[toLetterIndex] &&
+                p.moveNum === 1 &&
+                Number(p.position[1]) === 5,
+            ) &&
+            Number(from[1]) === 5
+          ) {
+            const piece = board.find(
+              (p) =>
+                p.position[0] === files[toLetterIndex] &&
+                Number(p.position[1]) === 5,
+            );
+            if (piece) {
+              return res.json({
+                newPosition: to,
+                message: `En Passent ${piece.piece} on ${piece.position}`,
+              });
+            }
           }
         }
         // Cannot move to a position with a piece there already
@@ -188,6 +217,27 @@ app.post("/validateMove", (req, res) => {
                 error: true,
                 newPosition: from,
                 message: `Cannot take own ${otherPiece.piece}`,
+              });
+            }
+          }
+          if (
+            board.some(
+              (p) =>
+                p.position[0] === files[toLetterIndex] &&
+                p.moveNum === 1 &&
+                Number(p.position[1]) === 4,
+            ) &&
+            Number(from[1]) === 4
+          ) {
+            const piece = board.find(
+              (p) =>
+                p.position[0] === files[toLetterIndex] &&
+                Number(p.position[1]) === 4,
+            );
+            if (piece) {
+              return res.json({
+                newPosition: to,
+                message: `En Passent ${piece.piece} on ${piece.position}`,
               });
             }
           }
@@ -361,7 +411,7 @@ app.post("/validateMove", (req, res) => {
       const fromLetterIndex = files.findIndex((p) => p === from[0]);
       if (
         Math.abs(toLetterIndex - fromLetterIndex) +
-        Math.abs(Number(to[1]) - Number(from[1])) !==
+          Math.abs(Number(to[1]) - Number(from[1])) !==
         3
       ) {
         return res.json({

@@ -2,15 +2,15 @@ POST http://localhost:5000/validateMove
 Content-Type: application/json
 
 {
-  "from": "E1",
-  "to": "H1",
-  "piece": "king",
-  "color": "white",
+  "from": "H4",
+  "to": "G3",
+  "piece": "pawn",
+  "color": "black",
   "hasMoved": false,
   "board": [
   {"position": "H1", "piece": "rook", "color": "white", "hasMoved": false, "moveNum": 0}, 
-  {"position": "H3", "piece": "pawn", "color": "black", "hasMoved": false, "moveNum": 0}, 
-  {"position": "C2", "piece": "pawn", "color": "black", "hasMoved": false, "moveNum": 0}
+  {"position": "G8", "piece": "pawn", "color": "black", "hasMoved": false, "moveNum": 1}, 
+  {"position": "G4", "piece": "pawn", "color": "white", "hasMoved": false, "moveNum": 1}
   ]
 }
 
