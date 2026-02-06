@@ -361,7 +361,7 @@ app.post("/validateMove", (req, res) => {
       const fromLetterIndex = files.findIndex((p) => p === from[0]);
       if (
         Math.abs(toLetterIndex - fromLetterIndex) +
-          Math.abs(Number(to[1]) - Number(from[1])) !==
+        Math.abs(Number(to[1]) - Number(from[1])) !==
         3
       ) {
         return res.json({
