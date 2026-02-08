@@ -13,9 +13,9 @@ POST http://localhost:5000/validateMove
 Content-Type: application/json
 
 {
-  "from": "E2",
-  "to": "E4",
-  "piece": "pawn",
+  "from": "A5",
+  "to": "C3",
+  "piece": "queen",
   "color": "white",
   "hasMoved": false,
   "board": {{getBoard.response.body.board}}

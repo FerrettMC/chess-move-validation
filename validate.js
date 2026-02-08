@@ -652,6 +652,133 @@ app.post("/validateMove", (req, res) => {
       }
       return res.json({ newPosition: to });
     }
+    case "queen": {
+      const toLetterIndex = files.findIndex((p) => p === to[0]);
+      const fromLetterIndex = files.findIndex((p) => p === from[0]);
+      const right = fromLetterIndex < toLetterIndex ? true : false;
+      const up = Number(from[1]) < Number(to[1]) ? true : false;
+      if (toLetterIndex !== fromLetterIndex && to[1] !== from[1]) {
+        if (
+          Math.abs(fromLetterIndex - toLetterIndex) !==
+          Math.abs(from[1] - to[1])
+        ) {
+          return res.json({
+            error: true,
+            newPosition: from,
+            message: `Cannot move like this`,
+          });
+        }
+        const dx = right ? 1 : -1;
+        const dy = up ? 1 : -1;
+
+        for (let i = 1; i < Math.abs(fromLetterIndex - toLetterIndex); i++) {
+          const numHorizontal = fromLetterIndex + dx * i;
+          const numVertical = Number(from[1]) + dy * i;
+
+          if (
+            board.some(
+              (p) =>
+                p.position[0] === files[numHorizontal] &&
+                Number(p.position[1]) === numVertical,
+            )
+          ) {
+            return res.json({
+              error: true,
+              newPosition: from,
+              message: `Cannot move here, piece in the way`,
+            });
+          }
+        }
+        if (board.some((p) => p.position === to)) {
+          const otherPiece = board.find((p) => p.position === to);
+          if (otherPiece) {
+            if (otherPiece.color !== color) {
+              return res.json({
+                newPosition: to,
+                message: `Took ${otherPiece.piece} on ${to}`,
+              });
+            } else {
+              return res.json({
+                error: true,
+                newPosition: from,
+                message: `Cannot take own ${otherPiece.piece}`,
+              });
+            }
+          }
+        }
+        return res.json({ newPosition: to });
+      } else {
+        const direction = to[1] === from[1] ? "horizontal" : "vertical";
+        switch (direction) {
+          case "horizontal":
+            for (
+              let i = 1;
+              i < Math.abs(toLetterIndex - fromLetterIndex);
+              i++
+            ) {
+              let blockingPiece = false;
+              if (toLetterIndex > fromLetterIndex) {
+                blockingPiece = board.find(
+                  (p) => p.position === `${files[fromLetterIndex + i]}${to[1]}`,
+                );
+              } else {
+                blockingPiece = board.find(
+                  (p) => p.position === `${files[fromLetterIndex - i]}${to[1]}`,
+                );
+              }
+              if (blockingPiece) {
+                return res.json({
+                  error: true,
+                  newPosition: from,
+                  message: `Piece blocking you on ${blockingPiece.position}`,
+                });
+              }
+            }
+          case "vertical":
+            for (
+              let i = 1;
+              i < Math.abs(Number(to[1]) - Number(from[1]));
+              i++
+            ) {
+              let blockingPiece = false;
+              if (Number(to[1]) > Number(from[1])) {
+                blockingPiece = board.find(
+                  (p) => p.position === `${from[0]}${Number(from[1]) + i}`,
+                );
+              } else {
+                blockingPiece = board.find(
+                  (p) => p.position === `${from[0]}${Number(from[1]) - i}`,
+                );
+              }
+              if (blockingPiece) {
+                return res.json({
+                  error: true,
+                  newPosition: from,
+                  message: `Piece blocking you on ${blockingPiece.position}`,
+                });
+              }
+            }
+        }
+        if (board.some((p) => p.position === to)) {
+          const otherPiece = board.find((p) => p.position === to);
+          if (otherPiece) {
+            if (otherPiece.color !== color) {
+              return res.json({
+                newPosition: to,
+                message: `Took ${otherPiece.piece} on ${to}`,
+              });
+            } else {
+              return res.json({
+                error: true,
+                newPosition: from,
+                message: `Cannot take own ${otherPiece.piece}`,
+              });
+            }
+          }
+        }
+        return res.json({ newPosition: to });
+      }
+    }
     default: {
       return res.json({
         error: true,
