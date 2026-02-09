@@ -57,11 +57,11 @@
       "moveNum": 0
     },
     {
-      "position": "A2",
+      "position": "C4",
       "piece": "pawn",
       "color": "white",
-      "hasMoved": false,
-      "moveNum": 0
+      "hasMoved": true,
+      "moveNum": 1
     },
     {
       "position": "B2",

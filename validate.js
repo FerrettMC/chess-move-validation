@@ -2,6 +2,7 @@ import express from "express";
 import { writeFile, readFile } from "fs/promises";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import { pawn, knight, rook, bishop, king, queen } from "./pieces.js";
 
 const app = express();
 app.use(express.json());
@@ -12,7 +13,7 @@ const __dirname = dirname(__filename);
 
 const BOARD_FILE = join(__dirname, "board.json");
 
-const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
+export const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
 const blackSquares = [];
 for (let f = 0; f < 8; f++) {
@@ -153,6 +154,8 @@ app.get("/board", async (req, res) => {
 
 app.post("/validateMove", (req, res) => {
   const { from, to, piece, color, hasMoved, board } = req.body;
+  const toLetterIndex = files.findIndex((p) => p === to[0]);
+  const fromLetterIndex = files.findIndex((p) => p === from[0]);
 
   // Not on board
   if (!fullBoard.includes(to)) {
@@ -165,219 +168,11 @@ app.post("/validateMove", (req, res) => {
 
   switch (piece) {
     case "pawn": {
-      const toLetterIndex = files.findIndex((p) => p === to[0]);
-      const fromLetterIndex = files.findIndex((p) => p === from[0]);
-
-      // White pawn
-      if (color === "white") {
-        let firstMove = false;
-        // First pawn move 2 squares
-        if (to[1] === "4" && from[1] === "2" && from[0] === to[0]) {
-          firstMove = true;
-          // If opposing pawn is on the square one above
-          if (
-            board.some(
-              (p) =>
-                p.position[0] === to[0] &&
-                Number(p.position[1]) === Number(to[1]) - 1,
-            )
-          ) {
-            return res.json({
-              error: true,
-              newPosition: from,
-              message: `Piece on ${to[0] + String(to[1] - 1)} (In the way)`,
-            });
-          } else {
-            return res.json({ newPosition: to });
-          }
-        }
-        // Cannot move more/less than one square
-        if (Number(to[1]) - 1 !== Number(from[1]) && !firstMove) {
-          return res.json({
-            error: true,
-            newPosition: from,
-            message: `Cannot move to this position`,
-          });
-        }
-        // Take piece (only diagonal 1)
-        if (
-          fromLetterIndex + 1 === toLetterIndex ||
-          fromLetterIndex - 1 === toLetterIndex
-        ) {
-          if (board.some((p) => p.position === to)) {
-            const otherPiece = board.find((p) => p.position === to);
-            let promotion = false;
-            if (otherPiece.color !== color) {
-              if (Number(to[1]) === 8) {
-                promotion = true;
-              }
-              return res.json({
-                promotion: promotion,
-                newPosition: to,
-                message: `Took ${otherPiece.piece} on ${to}`,
-              });
-            } else {
-              return res.json({
-                error: true,
-                newPosition: from,
-                message: `Cannot take own ${otherPiece.piece}`,
-              });
-            }
-          }
-          if (
-            board.some(
-              (p) =>
-                p.position[0] === files[toLetterIndex] &&
-                p.moveNum === 1 &&
-                Number(p.position[1]) === 5,
-            ) &&
-            Number(from[1]) === 5
-          ) {
-            const piece = board.find(
-              (p) =>
-                p.position[0] === files[toLetterIndex] &&
-                Number(p.position[1]) === 5,
-            );
-            if (piece) {
-              return res.json({
-                newPosition: to,
-                message: `En Passent ${piece.piece} on ${piece.position}`,
-              });
-            }
-          }
-        }
-        // Cannot move to a position with a piece there already
-        if (board.some((p) => p.position === to)) {
-          return res.json({
-            error: true,
-            newPosition: from,
-            message: `Piece already on ${to}`,
-          });
-        }
-        // Basic pawn movement
-        if (Number(from[1]) + 1 === Number(to[1])) {
-          if (from[0] === to[0]) {
-            let promotion = false;
-            if (Number(to[1]) === 8) {
-              promotion = true;
-            }
-            return res.json({ promotion: promotion, newPosition: to });
-          }
-        }
-        // You messed up
-        return res.json({
-          error: true,
-          newPosition: from,
-          message: `Cannot move to this position`,
-        });
-      }
-      // Black pawn
-      else if (color === "black") {
-        let firstMove = false;
-        // First pawn move 2 squares
-        if (to[1] === "5" && from[1] === "7" && from[0] === to[0]) {
-          firstMove = true;
-          // If opposing pawn is on the square one below
-          if (
-            board.some(
-              (p) =>
-                p.position[0] === to[0] &&
-                Number(p.position[1]) === Number(to[1]) + 1,
-            )
-          ) {
-            return res.json({
-              error: true,
-              newPosition: from,
-              message: `Piece on ${to[0] + String(Number(to[1]) + 1)} (In the way)`,
-            });
-          } else {
-            return res.json({ newPosition: to });
-          }
-        }
-        // Cannot move more/less than one square
-        if (Number(to[1]) + 1 !== Number(from[1]) && !firstMove) {
-          return res.json({
-            error: true,
-            newPosition: from,
-            message: `Cannot move to this position`,
-          });
-        }
-        // Take piece (only diagonal 1)
-        if (
-          fromLetterIndex + 1 === toLetterIndex ||
-          fromLetterIndex - 1 === toLetterIndex
-        ) {
-          if (board.some((p) => p.position === to)) {
-            const otherPiece = board.find((p) => p.position === to);
-            let promotion = false;
-            if (otherPiece.color !== color) {
-              if (Number(to[1]) === 1) {
-                promotion = true;
-              }
-              return res.json({
-                promotion: promotion,
-                newPosition: to,
-                message: `Took ${otherPiece.piece} on ${to}`,
-              });
-            } else {
-              return res.json({
-                error: true,
-                newPosition: from,
-                message: `Cannot take own ${otherPiece.piece}`,
-              });
-            }
-          }
-          if (
-            board.some(
-              (p) =>
-                p.position[0] === files[toLetterIndex] &&
-                p.moveNum === 1 &&
-                Number(p.position[1]) === 4,
-            ) &&
-            Number(from[1]) === 4
-          ) {
-            const piece = board.find(
-              (p) =>
-                p.position[0] === files[toLetterIndex] &&
-                Number(p.position[1]) === 4,
-            );
-            if (piece) {
-              return res.json({
-                newPosition: to,
-                message: `En Passent ${piece.piece} on ${piece.position}`,
-              });
-            }
-          }
-        }
-        // Cannot move to a position with a piece there already
-        if (board.some((p) => p.position === to)) {
-          return res.json({
-            error: true,
-            newPosition: from,
-            message: `Piece already on ${to}`,
-          });
-        }
-        // Basic pawn movement
-        if (Number(from[1]) - 1 === Number(to[1])) {
-          if (from[0] === to[0]) {
-            let promotion = false;
-            if (Number(to[1]) === 1) {
-              promotion = true;
-            }
-            return res.json({ promotion: promotion, newPosition: to });
-          }
-        }
-        // You messed up
-        return res.json({
-          error: true,
-          newPosition: from,
-          message: `Cannot move to this position`,
-        });
-      }
+      return res.json(
+        pawn(from, to, color, board, toLetterIndex, fromLetterIndex),
+      );
     }
     case "rook": {
-      const toLetterIndex = files.findIndex((p) => p === to[0]);
-      const fromLetterIndex = files.findIndex((p) => p === from[0]);
       // Not on board
 
       if (to[1] !== from[1] && to[0] !== from[0]) {
@@ -450,8 +245,6 @@ app.post("/validateMove", (req, res) => {
       return res.json({ newPosition: to });
     }
     case "bishop": {
-      const toLetterIndex = files.findIndex((p) => p === to[0]);
-      const fromLetterIndex = files.findIndex((p) => p === from[0]);
       const right = fromLetterIndex < toLetterIndex ? true : false;
       const up = Number(from[1]) < Number(to[1]) ? true : false;
       if (
@@ -514,8 +307,6 @@ app.post("/validateMove", (req, res) => {
       return res.json({ newPosition: to });
     }
     case "knight": {
-      const toLetterIndex = files.findIndex((p) => p === to[0]);
-      const fromLetterIndex = files.findIndex((p) => p === from[0]);
       if (
         Math.abs(toLetterIndex - fromLetterIndex) +
           Math.abs(Number(to[1]) - Number(from[1])) !==
@@ -547,8 +338,6 @@ app.post("/validateMove", (req, res) => {
       return res.json({ newPosition: to });
     }
     case "king": {
-      const toLetterIndex = files.findIndex((p) => p === to[0]);
-      const fromLetterIndex = files.findIndex((p) => p === from[0]);
       if (
         Math.abs(fromLetterIndex - toLetterIndex) === 2 &&
         from[1] === to[1]
@@ -653,8 +442,6 @@ app.post("/validateMove", (req, res) => {
       return res.json({ newPosition: to });
     }
     case "queen": {
-      const toLetterIndex = files.findIndex((p) => p === to[0]);
-      const fromLetterIndex = files.findIndex((p) => p === from[0]);
       const right = fromLetterIndex < toLetterIndex ? true : false;
       const up = Number(from[1]) < Number(to[1]) ? true : false;
       if (toLetterIndex !== fromLetterIndex && to[1] !== from[1]) {
