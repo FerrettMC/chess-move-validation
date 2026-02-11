@@ -13,10 +13,16 @@ POST http://localhost:5000/validateMove
 Content-Type: application/json
 
 {
-  "from": "B1",
-  "to": "B4",
-  "piece": "queen",
-  "color": "black",
-  "hasMoved": false,
-  "board": {{getBoard.response.body.board}}
+  "from": "A7",
+  "to": "A8",
+  "piece": "pawn",
+  "color": "white",
+  "hasMoved": true,
+  "fullPiece": {
+      "position": "A7",
+      "piece": "pawn",
+      "color": "white",
+      "hasMoved": true,
+      "moveNum": 2
+  }
 }

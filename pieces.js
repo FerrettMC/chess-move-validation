@@ -1,17 +1,45 @@
-import { files, blackSquares, whiteSquares } from "./validate.js";
-export function pawn(from, to, color, board, toLetterIndex, fromLetterIndex) {
+import { files, blackSquares, whiteSquares, returnMove } from "./validate.js";
+
+async function moveDone(board, fullPiece, to, from, promotion = false) {
+  const thePiece = board.find(
+    (p) =>
+      p.position === fullPiece.position &&
+      p.piece === fullPiece.piece &&
+      p.color === fullPiece.color,
+  );
+
+  if (!thePiece)
+    return { error: true, newPosition: from, message: "Piece not found" }; // piece not found
+
+  thePiece.position = to;
+  thePiece.hasMoved = true;
+  thePiece.moveNum++;
+  if (promotion) thePiece.piece = "queen";
+  await returnMove(board);
+  return { newPosition: to, message: "Move made" };
+}
+
+export async function pawn(
+  fullPiece,
+  from,
+  to,
+  color,
+  board,
+  toLetterIndex,
+  fromLetterIndex,
+) {
   const firstMoveSquares = color == "white" ? [4, 2] : [5, 7];
   const enPassantSquare = color == "white" ? 5 : 4;
   const direction = Number(to[1]) > Number(from[1]) ? 1 : -1;
   let firstMove = false;
-  // First pawn move 2 squares
+
   if (
     Number(to[1]) === firstMoveSquares[0] &&
     Number(from[1]) === firstMoveSquares[1] &&
     from[0] === to[0]
   ) {
     firstMove = true;
-    // If opposing pawn is on the square one above
+
     if (
       board.some(
         (p) =>
@@ -25,10 +53,10 @@ export function pawn(from, to, color, board, toLetterIndex, fromLetterIndex) {
         message: `Piece on ${to[0] + String(to[1] - 1 * direction)} (In the way)`,
       };
     } else {
-      return { newPosition: to };
+      return await moveDone(board, fullPiece, to, from);
     }
   }
-  // Cannot move more/less than one square
+
   if (Number(to[1]) - 1 * direction !== Number(from[1]) && !firstMove) {
     return {
       error: true,
@@ -36,8 +64,9 @@ export function pawn(from, to, color, board, toLetterIndex, fromLetterIndex) {
       message: `Cannot move to this position`,
     };
   }
-  // Take piece (only diagonal 1)
+
   const promotionalSquare = color === "white" ? 8 : 1;
+
   if (
     fromLetterIndex + 1 === toLetterIndex ||
     fromLetterIndex - 1 === toLetterIndex
@@ -45,15 +74,12 @@ export function pawn(from, to, color, board, toLetterIndex, fromLetterIndex) {
     if (board.some((p) => p.position === to)) {
       const otherPiece = board.find((p) => p.position === to);
       let promotion = false;
+
       if (otherPiece.color !== color) {
         if (Number(to[1]) === promotionalSquare) {
           promotion = true;
         }
-        return {
-          promotion: promotion,
-          newPosition: to,
-          message: `Took ${otherPiece.piece} on ${to}`,
-        };
+        return await moveDone(board, fullPiece, to, from, promotion);
       } else {
         return {
           error: true,
@@ -62,6 +88,7 @@ export function pawn(from, to, color, board, toLetterIndex, fromLetterIndex) {
         };
       }
     }
+
     if (
       board.some(
         (p) =>
@@ -77,14 +104,11 @@ export function pawn(from, to, color, board, toLetterIndex, fromLetterIndex) {
           Number(p.position[1]) === enPassantSquare,
       );
       if (piece) {
-        return {
-          newPosition: to,
-          message: `En Passent ${piece.piece} on ${piece.position}`,
-        };
+        return await moveDone(board, fullPiece, to, from);
       }
     }
   }
-  // Cannot move to a position with a piece there already
+
   if (board.some((p) => p.position === to)) {
     return {
       error: true,
@@ -92,17 +116,17 @@ export function pawn(from, to, color, board, toLetterIndex, fromLetterIndex) {
       message: `Piece already on ${to}`,
     };
   }
-  // Basic pawn movement
+
   if (Number(from[1]) + 1 === Number(to[1])) {
     if (from[0] === to[0]) {
       let promotion = false;
       if (Number(to[1]) === 8) {
         promotion = true;
       }
-      return { promotion: promotion, newPosition: to };
+      return await moveDone(board, fullPiece, to, from, promotion);
     }
   }
-  // You messed up
+
   return {
     error: true,
     newPosition: from,

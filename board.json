@@ -60,8 +60,8 @@
       "position": "A2",
       "piece": "pawn",
       "color": "white",
-      "hasMoved": true,
-      "moveNum": 1
+      "hasMoved": false,
+      "moveNum": 0
     },
     {
       "position": "B2",

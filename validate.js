@@ -15,6 +15,14 @@ const BOARD_FILE = join(__dirname, "board.json");
 
 export const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
+export async function returnMove(board) {
+  await writeFile(
+    BOARD_FILE,
+    JSON.stringify({ board: board }, null, 2),
+    "utf8",
+  );
+}
+
 export const blackSquares = [];
 for (let f = 0; f < 8; f++) {
   for (let r = 1; r <= 8; r++) {
@@ -140,24 +148,38 @@ app.post("/initializeBoard", async (req, res) => {
   }
 });
 
-app.get("/board", async (req, res) => {
+async function getBoardData() {
   try {
     const data = await readFile(BOARD_FILE, "utf8");
-    res.status(200).json(JSON.parse(data));
+    return JSON.parse(data).board; // ← extract the array
   } catch (error) {
-    res.status(404).json({
-      error: "Board not found",
-      details: error.message,
-    });
+    return error;
   }
+}
+
+app.get("/board", async (req, res) => {
+  const board = await getBoardData();
+  res.json(board);
 });
 
-app.post("/validateMove", (req, res) => {
-  const { from, to, piece, color, hasMoved, board } = req.body;
+app.post("/validateMove", async (req, res) => {
+  const { fullPiece, from, to, piece, color, hasMoved } = req.body;
+  const board = await getBoardData();
   const toLetterIndex = files.findIndex((p) => p === to[0]);
   const fromLetterIndex = files.findIndex((p) => p === from[0]);
 
-  // Not on board
+  const found = board.some(
+    (p) =>
+      p.position === fullPiece.position &&
+      p.piece === fullPiece.piece &&
+      p.color === fullPiece.color &&
+      p.hasMoved === fullPiece.hasMoved &&
+      p.moveNum === fullPiece.moveNum,
+  );
+  if (!found) {
+    return res.json({ message: "Piece not found" });
+  }
+
   if (!fullBoard.includes(to)) {
     return res.json({
       error: true,
@@ -168,35 +190,18 @@ app.post("/validateMove", (req, res) => {
 
   switch (piece) {
     case "pawn": {
-      return res.json(
-        pawn(from, to, color, board, toLetterIndex, fromLetterIndex),
+      const result = await pawn(
+        fullPiece,
+        from,
+        to,
+        color,
+        board,
+        toLetterIndex,
+        fromLetterIndex,
       );
+      return res.json(result);
     }
-    case "rook": {
-      return res.json(
-        rook(from, to, color, board, toLetterIndex, fromLetterIndex),
-      );
-    }
-    case "bishop": {
-      return res.json(
-        bishop(from, to, color, board, toLetterIndex, fromLetterIndex),
-      );
-    }
-    case "knight": {
-      return res.json(
-        knight(from, to, color, board, toLetterIndex, fromLetterIndex),
-      );
-    }
-    case "king": {
-      return res.json(
-        king(from, to, color, board, toLetterIndex, hasMoved, fromLetterIndex),
-      );
-    }
-    case "queen": {
-      return res.json(
-        queen(from, to, color, board, toLetterIndex, fromLetterIndex),
-      );
-    }
+    // same pattern for rook, bishop, etc. if they use moveDone
     default: {
       return res.json({
         error: true,
