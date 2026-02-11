@@ -201,6 +201,67 @@ app.post("/validateMove", async (req, res) => {
       );
       return res.json(result);
     }
+    case "rook": {
+      const result = await rook(
+        fullPiece,
+        from,
+        to,
+        color,
+        board,
+        toLetterIndex,
+        fromLetterIndex,
+      );
+      return res.json(result);
+    }
+    case "bishop": {
+      const result = await bishop(
+        fullPiece,
+        from,
+        to,
+        color,
+        board,
+        toLetterIndex,
+        fromLetterIndex,
+      );
+      return res.json(result);
+    }
+    case "knight": {
+      const result = await knight(
+        fullPiece,
+        from,
+        to,
+        color,
+        board,
+        toLetterIndex,
+        fromLetterIndex,
+      );
+      return res.json(result);
+    }
+    case "king": {
+      const result = await king(
+        fullPiece,
+        from,
+        to,
+        color,
+        board,
+        hasMoved,
+        toLetterIndex,
+        fromLetterIndex,
+      );
+      return res.json(result);
+    }
+    case "queen": {
+      const result = await queen(
+        fullPiece,
+        from,
+        to,
+        color,
+        board,
+        toLetterIndex,
+        fromLetterIndex,
+      );
+      return res.json(result);
+    }
     // same pattern for rook, bishop, etc. if they use moveDone
     default: {
       return res.json({

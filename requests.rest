@@ -4,7 +4,6 @@ Content-Type: application/json
 
 ###
 ### Get the current board state
-# @name getBoard
 GET http://localhost:5000/board
 
 ###
@@ -13,14 +12,14 @@ POST http://localhost:5000/validateMove
 Content-Type: application/json
 
 {
-  "from": "A7",
-  "to": "A8",
-  "piece": "pawn",
+  "from": "E1",
+  "to": "E2",
+  "piece": "king",
   "color": "white",
   "hasMoved": true,
   "fullPiece": {
-      "position": "A7",
-      "piece": "pawn",
+      "position": "E1",
+      "piece": "king",
       "color": "white",
       "hasMoved": true,
       "moveNum": 2

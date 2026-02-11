@@ -134,7 +134,15 @@ export async function pawn(
   };
 }
 
-export function rook(from, to, color, board, toLetterIndex, fromLetterIndex) {
+export async function rook(
+  fullPiece,
+  from,
+  to,
+  color,
+  board,
+  toLetterIndex,
+  fromLetterIndex,
+) {
   // Not on board
 
   if (to[1] !== from[1] && to[0] !== from[0]) {
@@ -191,10 +199,7 @@ export function rook(from, to, color, board, toLetterIndex, fromLetterIndex) {
     const otherPiece = board.find((p) => p.position === to);
     if (otherPiece) {
       if (otherPiece.color !== color) {
-        return {
-          newPosition: to,
-          message: `Took ${otherPiece.piece} on ${to}`,
-        };
+        return await moveDone(board, fullPiece, to, from);
       } else {
         return {
           error: true,
@@ -204,10 +209,18 @@ export function rook(from, to, color, board, toLetterIndex, fromLetterIndex) {
       }
     }
   }
-  return { newPosition: to };
+  return await moveDone(board, fullPiece, to, from);
 }
 
-export function bishop(from, to, color, board, toLetterIndex, fromLetterIndex) {
+export async function bishop(
+  fullPiece,
+  from,
+  to,
+  color,
+  board,
+  toLetterIndex,
+  fromLetterIndex,
+) {
   const right = fromLetterIndex < toLetterIndex ? true : false;
   const up = Number(from[1]) < Number(to[1]) ? true : false;
   if (
@@ -252,10 +265,7 @@ export function bishop(from, to, color, board, toLetterIndex, fromLetterIndex) {
     const otherPiece = board.find((p) => p.position === to);
     if (otherPiece) {
       if (otherPiece.color !== color) {
-        return {
-          newPosition: to,
-          message: `Took ${otherPiece.piece} on ${to}`,
-        };
+        return await moveDone(board, fullPiece, to, from);
       } else {
         return {
           error: true,
@@ -265,10 +275,18 @@ export function bishop(from, to, color, board, toLetterIndex, fromLetterIndex) {
       }
     }
   }
-  return { newPosition: to };
+  return await moveDone(board, fullPiece, to, from);
 }
 
-export function knight(from, to, color, board, toLetterIndex, fromLetterIndex) {
+export async function knight(
+  fullPiece,
+  from,
+  to,
+  color,
+  board,
+  toLetterIndex,
+  fromLetterIndex,
+) {
   if (
     Math.abs(toLetterIndex - fromLetterIndex) +
       Math.abs(Number(to[1]) - Number(from[1])) !==
@@ -284,10 +302,7 @@ export function knight(from, to, color, board, toLetterIndex, fromLetterIndex) {
     const otherPiece = board.find((p) => p.position === to);
     if (otherPiece) {
       if (otherPiece.color !== color) {
-        return {
-          newPosition: to,
-          message: `Took ${otherPiece.piece} on ${to}`,
-        };
+        return await moveDone(board, fullPiece, to, from);
       } else {
         return {
           error: true,
@@ -297,20 +312,29 @@ export function knight(from, to, color, board, toLetterIndex, fromLetterIndex) {
       }
     }
   }
-  return { newPosition: to };
+  return await moveDone(board, fullPiece, to, from);
 }
 
-export function queen(from, to, color, board, toLetterIndex, fromLetterIndex) {
+export async function queen(
+  fullPiece,
+  from,
+  to,
+  color,
+  board,
+  toLetterIndex,
+  fromLetterIndex,
+) {
   const right = fromLetterIndex < toLetterIndex ? true : false;
   const up = Number(from[1]) < Number(to[1]) ? true : false;
   if (toLetterIndex !== fromLetterIndex && to[1] !== from[1]) {
-    return bishop(from, to, color, board, toLetterIndex, fromLetterIndex);
+    return await bishop(from, to, color, board, toLetterIndex, fromLetterIndex);
   } else {
-    return rook(from, to, color, board, toLetterIndex, fromLetterIndex);
+    return await rook(from, to, color, board, toLetterIndex, fromLetterIndex);
   }
 }
 
-export function king(
+export async function king(
+  fullPiece,
   from,
   to,
   color,
@@ -348,7 +372,7 @@ export function king(
             };
           }
         }
-        return { newPosition: to };
+        return await moveDone(board, fullPiece, to, from);
       }
       case "right": {
         const rook = board.find((p) => p.position === `H${from[1]}`);
@@ -368,7 +392,7 @@ export function king(
             };
           }
         }
-        return { newPosition: to };
+        return await moveDone(board, fullPiece, to, from);
       }
 
       default:
@@ -381,11 +405,7 @@ export function king(
   }
   if (
     !(from[0] === to[0] && Math.abs(Number(to[1]) - Number(from[1])) === 1) &&
-    !(from[1] === to[1] && Math.abs(toLetterIndex - fromLetterIndex) === 1) &&
-    !(
-      Math.abs(toLetterIndex - fromLetterIndex) === 1 &&
-      Math.abs(Number(to[1]) - Number(from[1])) === 1
-    )
+    !(from[1] === to[1] && Math.abs(toLetterIndex - fromLetterIndex) === 1)
   ) {
     return {
       error: true,
@@ -397,10 +417,7 @@ export function king(
     const otherPiece = board.find((p) => p.position === to);
     if (otherPiece) {
       if (otherPiece.color !== color) {
-        return {
-          newPosition: to,
-          message: `Took ${otherPiece.piece} on ${to}`,
-        };
+        return await moveDone(board, fullPiece, to, from);
       } else {
         return {
           error: true,
@@ -410,5 +427,5 @@ export function king(
       }
     }
   }
-  return { newPosition: to };
+  return await moveDone(board, fullPiece, to, from);
 }
