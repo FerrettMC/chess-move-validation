@@ -22,6 +22,6 @@ Content-Type: application/json
       "piece": "king",
       "color": "white",
       "hasMoved": true,
-      "moveNum": 2
+      "moveNum": 1
   }
 }

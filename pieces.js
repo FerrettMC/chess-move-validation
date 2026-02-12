@@ -27,6 +27,7 @@ export async function pawn(
   board,
   toLetterIndex,
   fromLetterIndex,
+  check = false,
 ) {
   const firstMoveSquares = color == "white" ? [4, 2] : [5, 7];
   const enPassantSquare = color == "white" ? 5 : 4;
@@ -53,7 +54,11 @@ export async function pawn(
         message: `Piece on ${to[0] + String(to[1] - 1 * direction)} (In the way)`,
       };
     } else {
-      return await moveDone(board, fullPiece, to, from);
+      if (!check) {
+        return await moveDone(board, fullPiece, to, from);
+      } else {
+        return { newPosition: to, message: "Move made" };
+      }
     }
   }
 
@@ -104,7 +109,11 @@ export async function pawn(
           Number(p.position[1]) === enPassantSquare,
       );
       if (piece) {
-        return await moveDone(board, fullPiece, to, from);
+        if (!check) {
+          return await moveDone(board, fullPiece, to, from);
+        } else {
+          return { newPosition: to, message: "Move made" };
+        }
       }
     }
   }
@@ -142,6 +151,7 @@ export async function rook(
   board,
   toLetterIndex,
   fromLetterIndex,
+  check = false,
 ) {
   // Not on board
 
@@ -199,7 +209,11 @@ export async function rook(
     const otherPiece = board.find((p) => p.position === to);
     if (otherPiece) {
       if (otherPiece.color !== color) {
-        return await moveDone(board, fullPiece, to, from);
+        if (!check) {
+          return await moveDone(board, fullPiece, to, from);
+        } else {
+          return { newPosition: to, message: "Move made" };
+        }
       } else {
         return {
           error: true,
@@ -209,7 +223,11 @@ export async function rook(
       }
     }
   }
-  return await moveDone(board, fullPiece, to, from);
+  if (!check) {
+    return await moveDone(board, fullPiece, to, from);
+  } else {
+    return { newPosition: to, message: "Move made" };
+  }
 }
 
 export async function bishop(
@@ -220,6 +238,7 @@ export async function bishop(
   board,
   toLetterIndex,
   fromLetterIndex,
+  check = false,
 ) {
   const right = fromLetterIndex < toLetterIndex ? true : false;
   const up = Number(from[1]) < Number(to[1]) ? true : false;
@@ -265,7 +284,11 @@ export async function bishop(
     const otherPiece = board.find((p) => p.position === to);
     if (otherPiece) {
       if (otherPiece.color !== color) {
-        return await moveDone(board, fullPiece, to, from);
+        if (!check) {
+          return await moveDone(board, fullPiece, to, from);
+        } else {
+          return { newPosition: to, message: "Move made" };
+        }
       } else {
         return {
           error: true,
@@ -275,7 +298,11 @@ export async function bishop(
       }
     }
   }
-  return await moveDone(board, fullPiece, to, from);
+  if (!check) {
+    return await moveDone(board, fullPiece, to, from);
+  } else {
+    return { newPosition: to, message: "Move made" };
+  }
 }
 
 export async function knight(
@@ -286,6 +313,7 @@ export async function knight(
   board,
   toLetterIndex,
   fromLetterIndex,
+  check = false,
 ) {
   if (
     Math.abs(toLetterIndex - fromLetterIndex) +
@@ -302,7 +330,11 @@ export async function knight(
     const otherPiece = board.find((p) => p.position === to);
     if (otherPiece) {
       if (otherPiece.color !== color) {
-        return await moveDone(board, fullPiece, to, from);
+        if (!check) {
+          return await moveDone(board, fullPiece, to, from);
+        } else {
+          return { newPosition: to, message: "Move made" };
+        }
       } else {
         return {
           error: true,
@@ -312,7 +344,11 @@ export async function knight(
       }
     }
   }
-  return await moveDone(board, fullPiece, to, from);
+  if (!check) {
+    return await moveDone(board, fullPiece, to, from);
+  } else {
+    return { newPosition: to, message: "Move made" };
+  }
 }
 
 export async function queen(
@@ -323,13 +359,30 @@ export async function queen(
   board,
   toLetterIndex,
   fromLetterIndex,
+  check = false,
 ) {
   const right = fromLetterIndex < toLetterIndex ? true : false;
   const up = Number(from[1]) < Number(to[1]) ? true : false;
   if (toLetterIndex !== fromLetterIndex && to[1] !== from[1]) {
-    return await bishop(from, to, color, board, toLetterIndex, fromLetterIndex);
+    return await bishop(
+      from,
+      to,
+      color,
+      board,
+      toLetterIndex,
+      fromLetterIndex,
+      check,
+    );
   } else {
-    return await rook(from, to, color, board, toLetterIndex, fromLetterIndex);
+    return await rook(
+      from,
+      to,
+      color,
+      board,
+      toLetterIndex,
+      fromLetterIndex,
+      check,
+    );
   }
 }
 
@@ -342,6 +395,7 @@ export async function king(
   hasMoved,
   toLetterIndex,
   fromLetterIndex,
+  check = false,
 ) {
   if (Math.abs(fromLetterIndex - toLetterIndex) === 2 && from[1] === to[1]) {
     if (hasMoved || from[0] !== "E") {
@@ -372,7 +426,11 @@ export async function king(
             };
           }
         }
-        return await moveDone(board, fullPiece, to, from);
+        if (!check) {
+          return await moveDone(board, fullPiece, to, from);
+        } else {
+          return { newPosition: to, message: "Move made" };
+        }
       }
       case "right": {
         const rook = board.find((p) => p.position === `H${from[1]}`);
@@ -392,7 +450,11 @@ export async function king(
             };
           }
         }
-        return await moveDone(board, fullPiece, to, from);
+        if (!check) {
+          return await moveDone(board, fullPiece, to, from);
+        } else {
+          return { newPosition: to, message: "Move made" };
+        }
       }
 
       default:
@@ -417,7 +479,11 @@ export async function king(
     const otherPiece = board.find((p) => p.position === to);
     if (otherPiece) {
       if (otherPiece.color !== color) {
-        return await moveDone(board, fullPiece, to, from);
+        if (!check) {
+          return await moveDone(board, fullPiece, to, from);
+        } else {
+          return { newPosition: to, message: "Move made" };
+        }
       } else {
         return {
           error: true,
@@ -427,5 +493,9 @@ export async function king(
       }
     }
   }
-  return await moveDone(board, fullPiece, to, from);
+  if (!check) {
+    return await moveDone(board, fullPiece, to, from);
+  } else {
+    return { newPosition: to, message: "Move made" };
+  }
 }

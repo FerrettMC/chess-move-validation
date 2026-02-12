@@ -3,6 +3,7 @@ import { writeFile, readFile } from "fs/promises";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { pawn, knight, rook, bishop, king, queen } from "./pieces.js";
+import { isPutInCheck } from "./isPutInCheck.js";
 
 const app = express();
 app.use(express.json());
@@ -187,7 +188,14 @@ app.post("/validateMove", async (req, res) => {
       message: `Cannot move to this position`,
     });
   }
-
+  const movePutsInCheck = await isPutInCheck(fullPiece, from, to, board);
+  console.log(movePutsInCheck.error);
+  if (movePutsInCheck.error) {
+    return res.json({
+      error: true,
+      message: "This move puts the king in check.",
+    });
+  }
   switch (piece) {
     case "pawn": {
       const result = await pawn(
@@ -262,7 +270,6 @@ app.post("/validateMove", async (req, res) => {
       );
       return res.json(result);
     }
-    // same pattern for rook, bishop, etc. if they use moveDone
     default: {
       return res.json({
         error: true,
