@@ -189,7 +189,6 @@ app.post("/validateMove", async (req, res) => {
     });
   }
   const movePutsInCheck = await isPutInCheck(fullPiece, from, to, board);
-  console.log(movePutsInCheck.error);
   if (movePutsInCheck.error) {
     return res.json({
       error: true,

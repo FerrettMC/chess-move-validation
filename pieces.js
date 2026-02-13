@@ -1,5 +1,21 @@
 import { files, blackSquares, whiteSquares, returnMove } from "./validate.js";
 
+async function removePiece(piece, board) {
+  console.log(piece);
+  const index = board.findIndex(
+    (p) =>
+      p.position === piece.position &&
+      p.piece === piece.piece &&
+      p.color === piece.color,
+  );
+
+  if (index !== -1) {
+    board.splice(index, 1); // removes thePiece
+  }
+  await returnMove(board);
+  return;
+}
+
 async function moveDone(board, fullPiece, to, from, promotion = false) {
   const thePiece = board.find(
     (p) =>
@@ -84,6 +100,7 @@ export async function pawn(
         if (Number(to[1]) === promotionalSquare) {
           promotion = true;
         }
+        await removePiece(otherPiece, board);
         return await moveDone(board, fullPiece, to, from, promotion);
       } else {
         return {
@@ -210,6 +227,7 @@ export async function rook(
     if (otherPiece) {
       if (otherPiece.color !== color) {
         if (!check) {
+          await removePiece(otherPiece, board);
           return await moveDone(board, fullPiece, to, from);
         } else {
           return { newPosition: to, message: "Move made" };
@@ -249,14 +267,14 @@ export async function bishop(
     return {
       error: true,
       newPosition: from,
-      message: `Cannot move like this`,
+      message: `Cannot move like this111`,
     };
   }
   if (Math.abs(fromLetterIndex - toLetterIndex) !== Math.abs(from[1] - to[1])) {
     return {
       error: true,
       newPosition: from,
-      message: `Cannot move like this`,
+      message: `Cannot move like this222`,
     };
   }
   const dx = right ? 1 : -1;
@@ -285,6 +303,7 @@ export async function bishop(
     if (otherPiece) {
       if (otherPiece.color !== color) {
         if (!check) {
+          await removePiece(otherPiece, board);
           return await moveDone(board, fullPiece, to, from);
         } else {
           return { newPosition: to, message: "Move made" };
@@ -331,6 +350,7 @@ export async function knight(
     if (otherPiece) {
       if (otherPiece.color !== color) {
         if (!check) {
+          await removePiece(otherPiece, board);
           return await moveDone(board, fullPiece, to, from);
         } else {
           return { newPosition: to, message: "Move made" };
@@ -361,10 +381,9 @@ export async function queen(
   fromLetterIndex,
   check = false,
 ) {
-  const right = fromLetterIndex < toLetterIndex ? true : false;
-  const up = Number(from[1]) < Number(to[1]) ? true : false;
   if (toLetterIndex !== fromLetterIndex && to[1] !== from[1]) {
     return await bishop(
+      fullPiece,
       from,
       to,
       color,
@@ -375,6 +394,7 @@ export async function queen(
     );
   } else {
     return await rook(
+      fullPiece,
       from,
       to,
       color,
@@ -480,6 +500,7 @@ export async function king(
     if (otherPiece) {
       if (otherPiece.color !== color) {
         if (!check) {
+          await removePiece(otherPiece, board);
           return await moveDone(board, fullPiece, to, from);
         } else {
           return { newPosition: to, message: "Move made" };
