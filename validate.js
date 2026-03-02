@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { pawn, knight, rook, bishop, king, queen } from "./pieces.js";
 import { isPutInCheck } from "./isPutInCheck.js";
+import { putsOtherInCheck } from "./putsOtherInCheck.js";
 
 const app = express();
 app.use(express.json());
@@ -164,7 +165,11 @@ app.get("/board", async (req, res) => {
 });
 
 app.post("/validateMove", async (req, res) => {
-  const { fullPiece, from, to, piece, color, hasMoved } = req.body;
+  const { fullPiece, to } = req.body;
+  const from = fullPiece.position;
+  const piece = fullPiece.piece;
+  const color = fullPiece.color;
+  const hasMoved = fullPiece.hasMoved;
   const board = await getBoardData();
   const toLetterIndex = files.findIndex((p) => p === to[0]);
   const fromLetterIndex = files.findIndex((p) => p === from[0]);
@@ -181,6 +186,7 @@ app.post("/validateMove", async (req, res) => {
     return res.json({ message: "Piece not found" });
   }
 
+  // board is the current board, fullBoard is just the possible board positions
   if (!fullBoard.includes(to)) {
     return res.json({
       error: true,
@@ -188,6 +194,7 @@ app.post("/validateMove", async (req, res) => {
       message: `Cannot move to this position`,
     });
   }
+
   const movePutsInCheck = await isPutInCheck(fullPiece, from, to, board);
   if (movePutsInCheck.error) {
     return res.json({
@@ -195,6 +202,9 @@ app.post("/validateMove", async (req, res) => {
       message: "This move puts the king in check.",
     });
   }
+  let checkOther = false;
+  const movePutsOtherInCheck = await putsOtherInCheck(fullPiece, to, board);
+
   switch (piece) {
     case "pawn": {
       const result = await pawn(
