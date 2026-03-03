@@ -1,4 +1,5 @@
 import { error } from "console";
+import { files } from "./isPutInCheck.js";
 import { pawn, knight, rook, bishop, king, queen } from "./pieces.js";
 export async function putsOtherInCheck(fullPiece, from, board) {
   /* the "from" here is really where the piece is moving to, but since this function checks if the piece is pointed at the
@@ -9,6 +10,7 @@ export async function putsOtherInCheck(fullPiece, from, board) {
   if (!otherKing) {
     return { error: true, message: "No other king found!" };
   }
+  let result;
   const fromLetterIndex = files.findIndex((p) => p === from[0]);
   const toLetterIndex = files.findIndex((p) => p === otherKing.position[0]);
   switch (fullPiece.piece) {
@@ -17,7 +19,7 @@ export async function putsOtherInCheck(fullPiece, from, board) {
         fullPiece.piece,
         from,
         otherKing.position,
-        piece.color,
+        fullPiece.color,
         board,
         toLetterIndex,
         fromLetterIndex,
@@ -30,7 +32,7 @@ export async function putsOtherInCheck(fullPiece, from, board) {
         fullPiece.piece,
         from,
         otherKing.position,
-        piece.color,
+        fullPiece.color,
         board,
         toLetterIndex,
         fromLetterIndex,
@@ -43,7 +45,7 @@ export async function putsOtherInCheck(fullPiece, from, board) {
         fullPiece.piece,
         from,
         otherKing.position,
-        piece.color,
+        fullPiece.color,
         board,
         toLetterIndex,
         fromLetterIndex,
@@ -56,7 +58,7 @@ export async function putsOtherInCheck(fullPiece, from, board) {
         fullPiece.piece,
         from,
         otherKing.position,
-        piece.color,
+        fullPiece.color,
         board,
         toLetterIndex,
         fromLetterIndex,
@@ -72,7 +74,7 @@ export async function putsOtherInCheck(fullPiece, from, board) {
         fullPiece.piece,
         from,
         otherKing.position,
-        piece.color,
+        fullPiece.color,
         board,
         toLetterIndex,
         fromLetterIndex,
@@ -81,7 +83,7 @@ export async function putsOtherInCheck(fullPiece, from, board) {
       break;
   }
   if (result.error) {
-    return { error: true, message: "Error" };
+    return { error: false, message: result.message };
   }
   if (result.newPosition === otherKing.position) {
     return { error: false, putsInCheck: true };

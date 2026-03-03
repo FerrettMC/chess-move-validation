@@ -267,14 +267,15 @@ export async function bishop(
     return {
       error: true,
       newPosition: from,
-      message: `Cannot move like this111`,
+      message: `Cannot move like this 1`,
     };
   }
+  ``;
   if (Math.abs(fromLetterIndex - toLetterIndex) !== Math.abs(from[1] - to[1])) {
     return {
       error: true,
       newPosition: from,
-      message: `Cannot move like this222`,
+      message: `Cannot move like this 2`,
     };
   }
   const dx = right ? 1 : -1;

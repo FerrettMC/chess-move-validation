@@ -22,14 +22,14 @@
       "moveNum": 0
     },
     {
-      "position": "D1",
+      "position": "F6",
       "piece": "queen",
       "color": "white",
-      "hasMoved": false,
-      "moveNum": 0
+      "hasMoved": true,
+      "moveNum": 2
     },
     {
-      "position": "E5",
+      "position": "E1",
       "piece": "king",
       "color": "white",
       "hasMoved": false,
@@ -57,11 +57,11 @@
       "moveNum": 0
     },
     {
-      "position": "A5",
+      "position": "A2",
       "piece": "pawn",
       "color": "white",
-      "hasMoved": true,
-      "moveNum": 3
+      "hasMoved": false,
+      "moveNum": 0
     },
     {
       "position": "B2",
@@ -197,7 +197,7 @@
       "moveNum": 0
     },
     {
-      "position": "G5",
+      "position": "E6",
       "piece": "king",
       "color": "black",
       "hasMoved": false,

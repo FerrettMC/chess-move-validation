@@ -204,6 +204,19 @@ app.post("/validateMove", async (req, res) => {
   }
   let checkOther = false;
   const movePutsOtherInCheck = await putsOtherInCheck(fullPiece, to, board);
+  if (movePutsOtherInCheck.error) {
+    console.log(
+      `Error in checking for putting other side in check (${movePutsOtherInCheck.message})`,
+    );
+    return res.json({
+      error: true,
+      message: movePutsOtherInCheck.message,
+    });
+  }
+  if (movePutsOtherInCheck.putsInCheck) {
+    checkOther = true;
+    console.log("This move puts the opponent in check.");
+  }
 
   switch (piece) {
     case "pawn": {
