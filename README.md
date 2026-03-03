@@ -2,4 +2,4 @@
 
 ## My brain might explode before I finish this
 
-I'm gonna take a break from this for a while, I made very good progress, learned a lot and used me brain.
+
