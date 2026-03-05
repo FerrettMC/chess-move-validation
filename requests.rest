@@ -12,12 +12,12 @@ POST http://localhost:5000/validateMove
 Content-Type: application/json
 
 {
-  "to": "F6",
+  "to": "E4",
   "fullPiece": {
-      "position": "F3",
-      "piece": "queen",
+      "position": "E2",
+      "piece": "pawn",
       "color": "white",
-      "hasMoved": true,
-      "moveNum": 1
+      "hasMoved": false,
+      "moveNum": 0
   }
 }
