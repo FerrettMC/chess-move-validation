@@ -12,7 +12,7 @@ async function removePiece(piece, board) {
   if (index !== -1) {
     board.splice(index, 1); // removes thePiece
   }
-  await returnMove(board);
+  await returnMove(board, piece.color);
   return;
 }
 
@@ -31,7 +31,7 @@ async function moveDone(board, fullPiece, to, from, promotion = false) {
   thePiece.hasMoved = true;
   thePiece.moveNum++;
   if (promotion) thePiece.piece = "queen";
-  await returnMove(board);
+  await returnMove(board, fullPiece.color);
   return { newPosition: to, message: "Move made" };
 }
 
@@ -47,7 +47,7 @@ export async function pawn(
 ) {
   const firstMoveSquares = color == "white" ? [4, 2] : [5, 7];
   const enPassantSquare = color == "white" ? 5 : 4;
-  const direction = Number(to[1]) > Number(from[1]) ? 1 : -1;
+  const direction = color == "white" ? 1 : -1;
   let firstMove = false;
 
   if (
@@ -143,7 +143,7 @@ export async function pawn(
     };
   }
 
-  if (Number(from[1]) + 1 === Number(to[1])) {
+  if (Number(from[1]) + direction === Number(to[1])) {
     if (from[0] === to[0]) {
       let promotion = false;
       if (Number(to[1]) === 8) {

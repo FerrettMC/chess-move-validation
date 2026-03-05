@@ -18,10 +18,14 @@ const BOARD_FILE = join(__dirname, "board.json");
 
 export const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
-export async function returnMove(board) {
+export async function returnMove(board, color) {
+  let newColor = "white";
+  if (color == "white") {
+    newColor = "black";
+  }
   await writeFile(
     BOARD_FILE,
-    JSON.stringify({ board: board }, null, 2),
+    JSON.stringify({ turn: newColor, board: board }, null, 2),
     "utf8",
   );
 }
@@ -134,7 +138,7 @@ app.post("/initializeBoard", async (req, res) => {
     // Write to board.json
     await writeFile(
       BOARD_FILE,
-      JSON.stringify({ board: initialBoard }, null, 2),
+      JSON.stringify({ turn: "white", board: initialBoard }, null, 2),
       "utf8",
     );
 
@@ -160,6 +164,15 @@ async function getBoardData() {
   }
 }
 
+async function getTurn() {
+  try {
+    const data = await readFile(BOARD_FILE, "utf8");
+    return JSON.parse(data).turn; // ← extract the array
+  } catch (error) {
+    return error;
+  }
+}
+
 app.get("/board", async (req, res) => {
   const board = await getBoardData();
   res.json(board);
@@ -178,6 +191,7 @@ app.post("/validateMove", async (req, res) => {
   }
   const hasMoved = fullPiece.hasMoved;
   const board = await getBoardData();
+  const turn = await getTurn();
   const toLetterIndex = files.findIndex((p) => p === to[0]);
   const fromLetterIndex = files.findIndex((p) => p === from[0]);
   const found = board.some(
@@ -192,6 +206,9 @@ app.post("/validateMove", async (req, res) => {
     return res.json({ message: "Piece not found" });
   }
 
+  if (turn !== color) {
+    return res.json({ message: "Not your turn." });
+  }
   // board is the current board, fullBoard is just the possible board positions
   if (!fullBoard.includes(to)) {
     return res.json({
@@ -307,6 +324,7 @@ app.post("/validateMove", async (req, res) => {
       });
     }
   }
+  console.log(result);
   if (checkOther) {
     const checkmate = await isCheckMate(otherColor, board);
     if (checkmate.checkmate === true) {

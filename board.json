@@ -1,4 +1,5 @@
 {
+  "turn": "white",
   "board": [
     {
       "position": "A1",
@@ -22,11 +23,11 @@
       "moveNum": 0
     },
     {
-      "position": "B4",
+      "position": "D1",
       "piece": "queen",
       "color": "white",
-      "hasMoved": true,
-      "moveNum": 2
+      "hasMoved": false,
+      "moveNum": 0
     },
     {
       "position": "E1",
@@ -85,11 +86,11 @@
       "moveNum": 0
     },
     {
-      "position": "E4",
+      "position": "E2",
       "piece": "pawn",
       "color": "white",
-      "hasMoved": true,
-      "moveNum": 1
+      "hasMoved": false,
+      "moveNum": 0
     },
     {
       "position": "F2",
@@ -141,11 +142,11 @@
       "moveNum": 0
     },
     {
-      "position": "E7",
+      "position": "E5",
       "piece": "pawn",
       "color": "black",
-      "hasMoved": false,
-      "moveNum": 0
+      "hasMoved": true,
+      "moveNum": 2
     },
     {
       "position": "F7",
@@ -197,7 +198,7 @@
       "moveNum": 0
     },
     {
-      "position": "A4",
+      "position": "E8",
       "piece": "king",
       "color": "black",
       "hasMoved": false,
