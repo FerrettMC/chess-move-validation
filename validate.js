@@ -5,6 +5,7 @@ import { dirname, join } from "path";
 import { pawn, knight, rook, bishop, king, queen } from "./pieces.js";
 import { isPutInCheck } from "./isPutInCheck.js";
 import { putsOtherInCheck } from "./putsOtherInCheck.js";
+import { isCheckMate } from "./isCheckmate.js";
 
 const app = express();
 app.use(express.json());
@@ -169,11 +170,16 @@ app.post("/validateMove", async (req, res) => {
   const from = fullPiece.position;
   const piece = fullPiece.piece;
   const color = fullPiece.color;
+  let otherColor;
+  if (color == "white") {
+    otherColor = "black";
+  } else {
+    otherColor = "white";
+  }
   const hasMoved = fullPiece.hasMoved;
   const board = await getBoardData();
   const toLetterIndex = files.findIndex((p) => p === to[0]);
   const fromLetterIndex = files.findIndex((p) => p === from[0]);
-
   const found = board.some(
     (p) =>
       p.position === fullPiece.position &&
@@ -202,7 +208,7 @@ app.post("/validateMove", async (req, res) => {
       message: "This move puts the king in check.",
     });
   }
-  let checkOther = false;
+
   const movePutsOtherInCheck = await putsOtherInCheck(fullPiece, to, board);
   if (movePutsOtherInCheck.error) {
     console.log(
@@ -213,14 +219,15 @@ app.post("/validateMove", async (req, res) => {
       message: movePutsOtherInCheck.message,
     });
   }
+  let checkOther = false;
   if (movePutsOtherInCheck.putsInCheck) {
     checkOther = true;
     console.log("This move puts the opponent in check.");
   }
-
+  let result;
   switch (piece) {
     case "pawn": {
-      const result = await pawn(
+      result = await pawn(
         fullPiece,
         from,
         to,
@@ -229,10 +236,10 @@ app.post("/validateMove", async (req, res) => {
         toLetterIndex,
         fromLetterIndex,
       );
-      return res.json(result);
+      break;
     }
     case "rook": {
-      const result = await rook(
+      result = await rook(
         fullPiece,
         from,
         to,
@@ -241,10 +248,10 @@ app.post("/validateMove", async (req, res) => {
         toLetterIndex,
         fromLetterIndex,
       );
-      return res.json(result);
+      break;
     }
     case "bishop": {
-      const result = await bishop(
+      result = await bishop(
         fullPiece,
         from,
         to,
@@ -253,10 +260,10 @@ app.post("/validateMove", async (req, res) => {
         toLetterIndex,
         fromLetterIndex,
       );
-      return res.json(result);
+      break;
     }
     case "knight": {
-      const result = await knight(
+      result = await knight(
         fullPiece,
         from,
         to,
@@ -265,10 +272,10 @@ app.post("/validateMove", async (req, res) => {
         toLetterIndex,
         fromLetterIndex,
       );
-      return res.json(result);
+      break;
     }
     case "king": {
-      const result = await king(
+      result = await king(
         fullPiece,
         from,
         to,
@@ -278,10 +285,10 @@ app.post("/validateMove", async (req, res) => {
         toLetterIndex,
         fromLetterIndex,
       );
-      return res.json(result);
+      break;
     }
     case "queen": {
-      const result = await queen(
+      result = await queen(
         fullPiece,
         from,
         to,
@@ -290,7 +297,7 @@ app.post("/validateMove", async (req, res) => {
         toLetterIndex,
         fromLetterIndex,
       );
-      return res.json(result);
+      break;
     }
     default: {
       return res.json({
@@ -300,6 +307,24 @@ app.post("/validateMove", async (req, res) => {
       });
     }
   }
+  if (checkOther) {
+    const checkmate = await isCheckMate(otherColor, board);
+    if (checkmate.checkmate === true) {
+      return res.json({
+        ...result,
+        message: "Checkmate!",
+      });
+    }
+    return res.json({
+      ...result,
+      message: "Opponent is in check.",
+    });
+  }
+
+  return res.json({
+    ...result,
+    message: "",
+  });
 });
 
 app.listen(5000, () => console.log("Validation running"));
