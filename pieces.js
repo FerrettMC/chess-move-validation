@@ -201,6 +201,7 @@ export async function rook(
           };
         }
       }
+      break;
     case "vertical":
       for (let i = 1; i < Math.abs(Number(to[1]) - Number(from[1])); i++) {
         let blockingPiece = false;
@@ -221,6 +222,7 @@ export async function rook(
           };
         }
       }
+      break;
   }
   if (board.some((p) => p.position === to)) {
     const otherPiece = board.find((p) => p.position === to);
