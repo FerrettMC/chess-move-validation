@@ -1,7 +1,7 @@
 import { pawn, knight, rook, bishop, king, queen } from "./pieces.js";
 export const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
 export async function isPutInCheck(fullPiece, from, to, board) {
-  const opposingPieces = board.filter((p) => p.color !== fullPiece.color);
+  let opposingPieces = board.filter((p) => p.color !== fullPiece.color);
   let result;
   let putsCheck = false;
   if (fullPiece.piece === "king") {
@@ -106,6 +106,13 @@ export async function isPutInCheck(fullPiece, from, to, board) {
     );
 
     movingPiece.position = to;
+    const pieceOnTo = board.find((p) => p.position === to);
+
+    if (pieceOnTo) {
+      board = board.filter((p) => p !== pieceOnTo);
+    }
+    let opposingPieces = board.filter((p) => p.color !== fullPiece.color);
+
     for (const piece of opposingPieces) {
       const fromLetterIndex = files.findIndex((p) => p === piece.position[0]);
       const toLetterIndex = files.findIndex((p) => p === theKing.position[0]);

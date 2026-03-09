@@ -326,7 +326,7 @@ app.post("/validateMove", async (req, res) => {
   }
   console.log(result);
   if (checkOther) {
-    const checkmate = await isCheckMate(otherColor, board);
+    const checkmate = await isCheckMate(otherColor, board, fullPiece);
     if (checkmate.checkmate === true) {
       return res.json({
         ...result,
