@@ -1,5 +1,5 @@
 {
-  "turn": "black",
+  "turn": "white",
   "board": [
     {
       "position": "A1",
@@ -16,7 +16,7 @@
       "moveNum": 0
     },
     {
-      "position": "A5",
+      "position": "C1",
       "piece": "bishop",
       "color": "white",
       "hasMoved": false,
@@ -58,28 +58,28 @@
       "moveNum": 0
     },
     {
-      "position": "H3",
+      "position": "A2",
       "piece": "pawn",
       "color": "white",
       "hasMoved": false,
       "moveNum": 0
     },
     {
-      "position": "H4",
+      "position": "B2",
       "piece": "pawn",
       "color": "white",
       "hasMoved": false,
       "moveNum": 0
     },
     {
-      "position": "H5",
+      "position": "C2",
       "piece": "pawn",
       "color": "white",
       "hasMoved": false,
       "moveNum": 0
     },
     {
-      "position": "H5",
+      "position": "D2",
       "piece": "pawn",
       "color": "white",
       "hasMoved": false,
@@ -100,11 +100,11 @@
       "moveNum": 0
     },
     {
-      "position": "G3",
+      "position": "G2",
       "piece": "pawn",
       "color": "white",
-      "hasMoved": true,
-      "moveNum": 1
+      "hasMoved": false,
+      "moveNum": 0
     },
     {
       "position": "H2",
@@ -121,7 +121,7 @@
       "moveNum": 0
     },
     {
-      "position": "F5",
+      "position": "B7",
       "piece": "pawn",
       "color": "black",
       "hasMoved": false,
@@ -142,7 +142,7 @@
       "moveNum": 0
     },
     {
-      "position": "F8",
+      "position": "E7",
       "piece": "pawn",
       "color": "black",
       "hasMoved": false,
@@ -170,7 +170,7 @@
       "moveNum": 0
     },
     {
-      "position": "B7",
+      "position": "B6",
       "piece": "rook",
       "color": "black",
       "hasMoved": false,
@@ -191,7 +191,7 @@
       "moveNum": 0
     },
     {
-      "position": "A6",
+      "position": "B4",
       "piece": "queen",
       "color": "black",
       "hasMoved": true,
@@ -205,7 +205,7 @@
       "moveNum": 0
     },
     {
-      "position": "D6",
+      "position": "F8",
       "piece": "bishop",
       "color": "black",
       "hasMoved": false,

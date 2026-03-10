@@ -14,10 +14,10 @@ Content-Type: application/json
 {
   "to": "B4",
   "fullPiece": {
-      "position": "A6",
+      "position": "D6",
       "piece": "queen",
       "color": "black",
-      "hasMoved": true,
-      "moveNum": 1
+      "hasMoved": false,
+      "moveNum": 0
   }
 }

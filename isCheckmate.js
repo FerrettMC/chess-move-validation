@@ -14,15 +14,16 @@ export async function isCheckMate(color, board, checkmatingPiece) {
     [-1, 1],
     [1, -1],
   ];
+  let result;
   for (let i = 0; i < 8; i++) {
     const dir = possibleDirections[i];
     const fromLetterIndex = files.findIndex((p) => p === theKing.position[0]);
 
-    const toNum = files[fromLetterIndex + dir[0]];
-    const toLetterIndex = files.findIndex((p) => p === toNum);
+    const toLetterIndex = fromLetterIndex + dir[0];
+
     if (
       toLetterIndex < 1 ||
-      toLetterIndex > 8 ||
+      toLetterIndex > 7 ||
       Number(theKing.position[1]) + dir[1] < 1 ||
       Number(theKing.position[1]) + dir[1] > 8
     ) {
@@ -43,6 +44,7 @@ export async function isCheckMate(color, board, checkmatingPiece) {
     );
     if (!result.error) {
       const isCheck = isPutInCheck(theKing, theKing.position, to, board);
+
       if (!isCheck.error) {
         return { checkmate: false };
       }
@@ -51,12 +53,12 @@ export async function isCheckMate(color, board, checkmatingPiece) {
   // Check if other pieces can take the opposing piece
   let sameColorPieces = board.filter((p) => p.color === theKing.color);
 
-  for (const samePiece in sameColorPieces) {
+  for (const samePiece of sameColorPieces) {
     const fromLetterIndex = files.findIndex((p) => p === samePiece.position[0]);
     const toLetterIndex = files.findIndex(
       (p) => p === checkmatingPiece.position[0],
     );
-    switch (samePiece) {
+    switch (samePiece.piece) {
       case "pawn":
         result = await pawn(
           samePiece,
@@ -143,13 +145,13 @@ export async function isCheckMate(color, board, checkmatingPiece) {
 
   // Check if other pieces can block the opposing piece
   const path = getPath(checkmatingPiece, theKing, board);
-  for (const samePiece in sameColorPieces) {
-    for (const pos in path) {
+  for (const samePiece of sameColorPieces) {
+    for (const pos of path) {
       const fromLetterIndex = files.findIndex(
         (p) => p === samePiece.position[0],
       );
       const toLetterIndex = files.findIndex((p) => p === pos[0]);
-      switch (samePiece) {
+      switch (samePiece.piece) {
         case "pawn":
           result = await pawn(
             samePiece,
