@@ -21,8 +21,9 @@ export async function isCheckMate(color, board, checkmatingPiece) {
 
     const toLetterIndex = fromLetterIndex + dir[0];
 
+    // files array indexes are 0..7
     if (
-      toLetterIndex < 1 ||
+      toLetterIndex < 0 ||
       toLetterIndex > 7 ||
       Number(theKing.position[1]) + dir[1] < 1 ||
       Number(theKing.position[1]) + dir[1] > 8
@@ -31,7 +32,7 @@ export async function isCheckMate(color, board, checkmatingPiece) {
     }
     const to = `${files[toLetterIndex]}${Number(theKing.position[1]) + dir[1]}`;
     console.log(to);
-    const result = await king(
+    const kingResult = await king(
       theKing,
       theKing.position,
       to,
@@ -42,8 +43,8 @@ export async function isCheckMate(color, board, checkmatingPiece) {
       fromLetterIndex,
       true,
     );
-    if (!result.error) {
-      const isCheck = isPutInCheck(theKing, theKing.position, to, board);
+    if (!kingResult.error) {
+      const isCheck = await isPutInCheck(theKing, theKing.position, to, board);
 
       if (!isCheck.error) {
         return { checkmate: false };

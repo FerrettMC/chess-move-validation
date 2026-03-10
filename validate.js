@@ -326,7 +326,12 @@ app.post("/validateMove", async (req, res) => {
   }
   console.log(result);
   if (checkOther) {
-    const checkmate = await isCheckMate(otherColor, board, fullPiece);
+    // Use the updated piece from the board (fullPiece from the request is stale)
+    const movedPiece = board.find(
+      (p) => p.color === color && p.piece === piece && p.position === to,
+    );
+    const checkmatingPiece = movedPiece || { position: to, piece, color };
+    const checkmate = await isCheckMate(otherColor, board, checkmatingPiece);
     if (checkmate.checkmate === true) {
       return res.json({
         ...result,
